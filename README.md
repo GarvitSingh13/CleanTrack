@@ -69,10 +69,6 @@ An AI-powered smart waste management platform that enables users to report garba
 ### Report Form
 ![Report](preview/report.png)
 
-* Dashboard Analytics
-* Heatmap View
-* Complaint Reporting
-* Admin Panel
 
 ---
 
