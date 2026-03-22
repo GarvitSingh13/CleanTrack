@@ -1,0 +1,143 @@
+/* AdminKeyModal.css */
+.admin-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease;
+}
+
+.admin-modal {
+  background: var(--card-bg, #ffffff);
+  color: var(--text-color, #1f2933);
+  padding: 40px;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+  position: relative;
+  text-align: center;
+  border: 1px solid var(--border-color, #e5e7eb);
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.admin-modal h2 {
+  margin-top: 0;
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: var(--text-color);
+}
+
+.admin-modal p {
+  color: var(--text-color);
+  opacity: 0.8;
+  margin-bottom: 30px;
+  font-size: 15px;
+}
+
+.close-btn {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: var(--text-color);
+  opacity: 0.5;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.close-btn:hover {
+  opacity: 1;
+}
+
+.secret-input {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 16px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color, #ccc);
+  background: var(--bg-color, #f4f7fb);
+  color: var(--text-color);
+  box-sizing: border-box;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+  text-align: center;
+  letter-spacing: 2px;
+}
+
+.secret-input:focus {
+  outline: none;
+  border-color: var(--primary-color, #1f8f55);
+  box-shadow: 0 0 0 4px rgba(31, 143, 85, 0.15);
+}
+
+.secret-input.input-error {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.15);
+}
+
+.submit-sec-btn {
+  width: 100%;
+  padding: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 10px;
+  background-color: var(--primary-color, #1f8f55);
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.submit-sec-btn:hover:not(:disabled) {
+  background-color: var(--primary-hover, #167347);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 15px rgba(31, 143, 85, 0.3);
+}
+
+.submit-sec-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.submit-sec-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.error-message {
+  color: #dc3545;
+  font-size: 14px;
+  margin-bottom: 15px;
+  font-weight: 500;
+}
+
+.shake {
+  animation: shakeX 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes shakeX {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(2px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+  40%, 60% { transform: translate3d(4px, 0, 0); }
+}

@@ -1,6 +1,16 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import AdminKeyModal from "./AdminKeyModal";
 
 function RoleSelection({ setRole }) {
+  const [showAdminModal, setShowAdminModal] = useState(false);
+  const [reportsResolved, setReportsResolved] = useState(1284);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setReportsResolved(prev => prev + Math.floor(Math.random() * 2));
+    }, 6000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="role-page">
@@ -20,28 +30,52 @@ function RoleSelection({ setRole }) {
         <div className="role-buttons">
 
           <button
-            className="resolve-btn role-btn"
+            className="role-btn"
             onClick={() => {
               localStorage.removeItem("userToken");
               setRole("user");
             }}
           >
-            Report Garbage
+            <span className="btn-icon" role="img" aria-label="recycle">♻️</span> Report Garbage
           </button>
 
           <button
-            className="resolve-btn role-btn"
+            className="role-btn admin-btn"
             onClick={() => {
-              localStorage.removeItem("adminToken");
-              setRole("admin");
+              localStorage.removeItem("collectorToken");
+              setRole("collector");
             }}
+            style={{ backgroundColor: "#2563eb" }}
           >
-            Admin Dashboard
+            <span className="btn-icon" role="img" aria-label="truck">🚛</span> Waste Collector
+          </button>
+
+          <button
+            className="role-btn admin-btn"
+            onClick={() => setShowAdminModal(true)}
+          >
+            <span className="btn-icon" role="img" aria-label="shield">🛡️</span> Admin Dashboard
           </button>
 
         </div>
 
+        <div className="live-stats-footer">
+          <div className="stat-pulse"></div>
+          <span><strong>{reportsResolved.toLocaleString()}</strong> total garbage issues resolved by our community in real-time</span>
+        </div>
+
       </div>
+
+      {showAdminModal && (
+        <AdminKeyModal
+          onClose={() => setShowAdminModal(false)}
+          onSuccess={() => {
+            setShowAdminModal(false);
+            localStorage.removeItem("adminToken");
+            setRole("admin");
+          }}
+        />
+      )}
 
     </div>
   );

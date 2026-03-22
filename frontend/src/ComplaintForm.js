@@ -24,19 +24,12 @@ function ComplaintForm({ onSuccess, onBack }){
   const [markerPosition, setMarkerPosition] = useState(null);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
   const [fileName, setFileName] = useState("");
+  const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
     getCurrentLocation();
   }, []);
-
-  useEffect(() => {
-    return () => {
-      if (preview) {
-        URL.revokeObjectURL(preview);
-      }
-    };
-  }, [preview]);
 
   const getCurrentLocation = () => {
     if (!navigator.geolocation) {
@@ -50,6 +43,7 @@ function ComplaintForm({ onSuccess, onBack }){
       async (position) => {
         const lat = position.coords.latitude;
         const lon = position.coords.longitude;
+        setMarkerPosition([lat, lon]);
 
         try {
           const response = await fetch(
@@ -129,6 +123,12 @@ function ComplaintForm({ onSuccess, onBack }){
     formData.append("address", address);
     formData.append("image", image);
 
+    // Send coordinates directly if we have them
+    if (markerPosition) {
+      formData.append("latitude", markerPosition[0]);
+      formData.append("longitude", markerPosition[1]);
+    }
+
     try {
       const token = localStorage.getItem("userToken");
 
@@ -148,7 +148,7 @@ function ComplaintForm({ onSuccess, onBack }){
       }
 
       const data = await response.json();
-      alert(data.message);
+      alert(`🌿 Awesome! ${data.message} 🌟`);
 
       setDescription("");
       setAddress("");
@@ -164,6 +164,79 @@ function ComplaintForm({ onSuccess, onBack }){
     } catch (error) {
       console.error("Submit failed:", error);
       alert("Backend not reachable. Is the server running?");
+    }
+  };
+
+  const handleFile = (file) => {
+    if (!file) return;
+    
+    // Check if it's an image by type or extension
+    const isImage = file.type.startsWith("image/") || 
+                    /\.(jpg|jpeg|png|gif|webp)$/i.test(file.name);
+
+    if (isImage) {
+      setImage(file);
+      setFileName(file.name);
+      
+      const reader = new FileReader();
+      
+      reader.onloadstart = () => {
+        console.log("Starting to read file:", file.name);
+      };
+
+      reader.onload = (e) => {
+        const result = e.target.result;
+        if (result) {
+          setPreview(result);
+          console.log("Preview set successfully for:", file.name);
+        } else {
+          console.error("FileReader returned empty result");
+        }
+      };
+
+      reader.onerror = (err) => {
+        console.error("FileReader error:", err);
+        // Fallback to ObjectURL if FileReader fails
+        try {
+          const url = URL.createObjectURL(file);
+          setPreview(url);
+        } catch (e) {
+          console.error("Fallback ObjectURL also failed", e);
+        }
+      };
+
+      reader.readAsDataURL(file);
+    } else {
+      alert("Please upload a valid image file (jpg, png, etc.)");
+    }
+  };
+
+  const handleDrag = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDragIn = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
+      setIsDragging(true);
+    }
+  };
+
+  const handleDragOut = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      handleFile(e.dataTransfer.files[0]);
     }
   };
 
@@ -200,173 +273,156 @@ function ComplaintForm({ onSuccess, onBack }){
   }
 
   return (
-  <div className="row justify-content-center">
-    <div className="col-md-8">
-      <div className="form-wrapper shadow-sm mb-4">
-        <div className="form-wrapper-body">
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginBottom: "20px"
-            }}
-          >
-            <button
-              onClick={onBack}
-              className="resolve-btn"
-            >
-              ← Back
-            </button>
-
-            <h4 style={{ margin: 0 }}>Submit a Complaint</h4>
-          </div>
-
-          <form onSubmit={handleSubmit} className="complaint-card">
-
-            <div className="mb-3">
-              <label className="form-label">Description</label>
-              <input
-                type="text"
-                className="form-control"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                required
-              />
-            </div>
-
-            <div className="mb-3">
-              <label className="form-label">
-                <FaMapMarkerAlt style={{ marginRight: "6px" }} />
-                Address
-              </label>
-
-              <div style={{ display: "flex", gap: "10px", position: "relative" }}>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Enter complaint location address"
-                  value={address}
-                  onChange={(e) => searchAddress(e.target.value)}
-                  required
-                />
-
-                <button
-                  type="button"
-                  className="resolve-btn"
-                  onClick={getCurrentLocation}
-                >
-                  {loadingLocation ? "Detecting..." : "Use My Location"}
-                </button>
-              </div>
-            </div>
-
-            {loadingSuggestions && (
-              <div style={{ fontSize: "12px", marginTop: "4px" }}>
-                Searching address...
-              </div>
-            )}
-
-            {suggestions.length > 0 && (
-              <div className="address-suggestions">
-                {suggestions.map((item, index) => (
-                  <div
-                    key={index}
-                    className="suggestion-item"
-                    onClick={() => {
-                      setAddress(item.display_name.split(",").slice(0,3).join(","));
-                      setSuggestions([]);
-                    }}
-                  >
-                    {item.display_name}
-                  </div>
-                ))}
-              </div>
-            )}
-
-            <div style={{ marginTop: "15px" }}>
-              <MapContainer
-                center={[20.5937, 78.9629]}
-                zoom={5}
-                style={{ height: "300px", width: "100%", borderRadius: "10px" }}
-              >
-                <TileLayer
-                  attribution="© OpenStreetMap contributors"
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-
-                <MapClickHandler
-                  setAddress={setAddress}
-                  setMarkerPosition={setMarkerPosition}
-                />
-
-                {markerPosition && <Marker position={markerPosition} />}
-
-              </MapContainer>
-            </div>
-
-            {address && (
-              <div className="map-preview" style={{ marginTop: "10px" }}>
-                <iframe
-                  title="preview-map"
-                  width="100%"
-                  height="200"
-                  style={{ border: 0, borderRadius: "8px" }}
-                  loading="lazy"
-                  allowFullScreen
-                  src={`https://maps.google.com/maps?q=${encodeURIComponent(address)}&z=15&output=embed`}
-                ></iframe>
-              </div>
-            )}
-
-            <div className="mb-3">
-              <label className="form-label">Image</label>
-
-              <input
-                type="file"
-                className="form-control"
-                ref={fileInputRef}
-                onClick={(e) => {
-                  e.target.value = null;
-                }}
-                onChange={(e) => {
-                  const file = e.target.files[0];
-                  if (!file) return;
-
-                  setImage(file);
-                  setFileName(file.name);
-
-                  const previewUrl = URL.createObjectURL(file);
-                  setPreview(previewUrl);
-                }}
-                required
-              />
-
-              {fileName && (
-                <p style={{ fontSize: "13px", marginTop: "5px" }}>
-                  Selected file: <strong>{fileName}</strong>
-                </p>
-              )}
-
-            </div>
-
-            {preview && (
-              <div className="image-preview">
-                <h4>Image Preview</h4>
-                <img src={preview} alt="preview" />
-              </div>
-            )}
-
-            <button type="submit" className="submit-btn">
-              Submit Complaint
-            </button>
-
-          </form>
+    <div className="complaint-form-wrapper">
+      <div className="dashboard-header">
+        <div className="dashboard-title">
+          <h2>Report Garbage</h2>
+          <p>Provide details and location to help us clean up</p>
         </div>
+        <button onClick={onBack} className="role-btn admin-btn" style={{ padding: "10px 20px" }}>
+          ← Back
+        </button>
       </div>
+
+      <form onSubmit={handleSubmit} className="complaint-card" style={{ maxWidth: "800px", margin: "0 auto" }}>
+        
+        <div className="auth-form-group">
+          <label>Description</label>
+          <input
+            type="text"
+            className="auth-input"
+            placeholder="What's the issue? (e.g. Overflowing bin, plastic waste)"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            required
+          />
+        </div>
+
+        <div className="auth-form-group">
+          <label>Location Address</label>
+          <div style={{ display: "flex", gap: "10px" }}>
+            <input
+              type="text"
+              className="auth-input"
+              placeholder="Detecting location..."
+              value={address}
+              onChange={(e) => searchAddress(e.target.value)}
+              required
+            />
+            <button
+              type="button"
+              className="role-btn admin-btn"
+              onClick={getCurrentLocation}
+              style={{ whiteSpace: "nowrap", padding: "10px 20px", fontSize: "14px" }}
+            >
+              {loadingLocation ? "..." : <FaMapMarkerAlt />}
+            </button>
+          </div>
+          
+          {loadingSuggestions && <p style={{ fontSize: "12px", marginTop: "5px", opacity: 0.6 }}>Searching...</p>}
+          
+          {suggestions.length > 0 && (
+            <div className="address-suggestions" style={{ 
+              background: "white", 
+              borderRadius: "12px", 
+              border: "1px solid rgba(0,0,0,0.1)", 
+              marginTop: "10px",
+              boxShadow: "0 10px 20px rgba(0,0,0,0.05)"
+            }}>
+              {suggestions.map((item, index) => (
+                <div
+                  key={index}
+                  className="suggestion-item"
+                  style={{ padding: "10px 15px", cursor: "pointer", borderBottom: index < suggestions.length -1 ? "1px solid rgba(0,0,0,0.05)" : "none" }}
+                  onClick={() => {
+                    setAddress(item.display_name.split(",").slice(0,3).join(","));
+                    setMarkerPosition([parseFloat(item.lat), parseFloat(item.lon)]);
+                    setSuggestions([]);
+                  }}
+                >
+                  {item.display_name}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div style={{ margin: "25px 0", borderRadius: "20px", overflow: "hidden", border: "1px solid rgba(0,0,0,0.05)" }}>
+          <MapContainer
+            center={[20.5937, 78.9629]}
+            zoom={5}
+            style={{ height: "300px", width: "100%" }}
+          >
+            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+            <MapClickHandler setAddress={setAddress} setMarkerPosition={setMarkerPosition} />
+            {markerPosition && <Marker position={markerPosition} />}
+          </MapContainer>
+        </div>
+
+        <div className="auth-form-group">
+          <label>Upload Proof (Image)</label>
+          <div 
+            className={`upload-zone ${isDragging ? "dragging" : ""}`}
+            style={{ 
+              border: isDragging ? "2px dashed var(--primary-color)" : "2px dashed rgba(0,0,0,0.1)", 
+              borderRadius: "16px", 
+              padding: "20px", 
+              textAlign: "center",
+              cursor: "pointer",
+              background: isDragging ? "rgba(34,197,94,0.05)" : "rgba(0,0,0,0.02)",
+              transition: "all 0.3s ease"
+            }}
+            onClick={() => fileInputRef.current.click()}
+            onDragEnter={handleDragIn}
+            onDragLeave={handleDragOut}
+            onDragOver={handleDrag}
+            onDrop={handleDrop}
+          >
+            <input
+              type="file"
+              hidden
+              ref={fileInputRef}
+              onChange={(e) => handleFile(e.target.files[0])}
+            />
+            {preview ? (
+              <div style={{ position: "relative" }}>
+                <img 
+                  src={preview} 
+                  alt="preview" 
+                  key={preview} // Force re-render
+                  style={{ 
+                    maxHeight: "250px", 
+                    width: "100%",
+                    objectFit: "contain",
+                    borderRadius: "12px",
+                    border: "2px solid var(--primary-color)",
+                    background: "#f0fdf4" // Light green background to see transparency
+                  }}
+                  onError={(e) => {
+                    console.error("Image load error", e);
+                    alert("Browser couldn't render this image preview. It might be a format issue (e.g. HEIC).");
+                  }}
+                />
+              </div>
+            ) : (
+              <p style={{ margin: 0, opacity: 0.6 }}>Click to upload or drag & drop</p>
+            )}
+            {fileName && (
+              <div style={{ marginTop: "10px" }}>
+                <p style={{ fontSize: "12px", margin: 0, fontWeight: "600", color: "var(--primary-color)" }}>{fileName}</p>
+                {image && <p style={{ fontSize: "10px", margin: 0, opacity: 0.6 }}>{(image.size / 1024).toFixed(1)} KB</p>}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <button type="submit" className="role-btn" style={{ width: "100%", padding: "16px" }}>
+          Submit Report
+        </button>
+
+      </form>
     </div>
-  </div>
-);
+  );
 }
 
-export default ComplaintForm; 
+export default ComplaintForm;

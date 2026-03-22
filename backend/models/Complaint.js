@@ -34,6 +34,24 @@ const ComplaintSchema = new mongoose.Schema({
     type: String,
     default: null
   },
+  proofImageUrl: {
+    type: String,
+    default: null
+  },
+  proofStatus: {
+    type: String,
+    enum: ["None", "Pending Review", "Approved", "Rejected"],
+    default: "None"
+  },
+  rejectionReason: {
+    type: String,
+    default: null
+  },
+  collectorId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Collector",
+    default: null
+  },
   createdAt: {
     type: Date,
     default: Date.now

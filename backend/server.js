@@ -16,6 +16,8 @@ app.use("/api/admin", require("./routes/admin"));
 
 app.use("/api/users", userAuthRoutes);
 
+app.use("/api/collector", require("./routes/collectorRoutes"));
+
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB Connected"))
   .catch(err => console.error("MongoDB connection error:", err));

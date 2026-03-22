@@ -17,6 +17,17 @@ const UserSchema = new mongoose.Schema({
   role: {
     type: String,
     default: "citizen"
+  },
+  isVerified: {
+    type: Boolean,
+    default: false
+  },
+  verificationCode: {
+    type: String
+  },
+  greenCredits: {
+    type: Number,
+    default: 0
   }
 });
 

@@ -29,83 +29,79 @@ function Sidebar({
       <button
         className="collapse-btn"
         onClick={() => setCollapsed(!collapsed)}
+        title={collapsed ? "Expand" : "Collapse"}
       >
         <FaBars />
       </button>
 
       <h2 className="sidebar-logo">CleanTrack</h2>
 
-      {role === "admin" && (
-        <>
-          <button
-            className={`sidebar-btn ${adminPage === "dashboard" ? "active" : ""}`}
-            onClick={() => setAdminPage("dashboard")}
-            title="Dashboard"
-          >
-            <FaTachometerAlt /> {!collapsed && "Dasboard"}
-          </button>
+      <div className="sidebar-nav">
+        {role === "admin" && (
+          <>
+            <button
+              className={`sidebar-btn ${adminPage === "dashboard" ? "active" : ""}`}
+              onClick={() => setAdminPage("dashboard")}
+            >
+              <FaTachometerAlt /> {!collapsed && <span>Dashboard</span>}
+            </button>
 
-          <button
-            className={`sidebar-btn ${adminPage === "complaints" ? "active" : ""}`}
-            onClick={() => setAdminPage("complaints")}
-            title="Complaints"
-          >
-            <FaClipboardList /> {!collapsed && "Complaints"}
-          </button>
+            <button
+              className={`sidebar-btn ${adminPage === "complaints" ? "active" : ""}`}
+              onClick={() => setAdminPage("complaints")}
+            >
+              <FaClipboardList /> {!collapsed && <span>Complaints</span>}
+            </button>
 
-          <button
-            className={`sidebar-btn ${adminPage === "heatmap" ? "active" : ""}`}
-            onClick={() => setAdminPage("heatmap")}
-            title="Heatmap"
-          >
-            <FaMapMarkedAlt /> {!collapsed && "Heatmap"}
-          </button>
+            <button
+              className={`sidebar-btn ${adminPage === "heatmap" ? "active" : ""}`}
+              onClick={() => setAdminPage("heatmap")}
+            >
+              <FaMapMarkedAlt /> {!collapsed && <span>Heatmap</span>}
+            </button>
 
-          <button
-            className={`sidebar-btn ${adminPage === "analytics" ? "active" : ""}`}
-            onClick={() => setAdminPage("analytics")}
-            title="Analytics"
-          >
-            <FaChartLine /> {!collapsed && "Analytics"}
-          </button>
-        </>
-      )}
+            <button
+              className={`sidebar-btn ${adminPage === "analytics" ? "active" : ""}`}
+              onClick={() => setAdminPage("analytics")}
+            >
+              <FaChartLine /> {!collapsed && <span>Analytics</span>}
+            </button>
+          </>
+        )}
 
-      {role === "user" && (
-        <>
-          <button
-            className={`sidebar-btn ${userPage === "dashboard" ? "active" : ""}`}
-            onClick={() => setUserPage("dashboard")}
-            title="Dashboard"
-          >
-            <FaTachometerAlt /> {!collapsed && "Dasboard"}
-          </button>
+        {role === "user" && (
+          <>
+            <button
+              className={`sidebar-btn ${userPage === "dashboard" ? "active" : ""}`}
+              onClick={() => setUserPage("dashboard")}
+            >
+              <FaTachometerAlt /> {!collapsed && <span>Dashboard</span>}
+            </button>
 
-          <button
-            className={`sidebar-btn ${userPage === "report" ? "active" : ""}`}
-            onClick={() => setUserPage("report")}
-            title="Report Garbage"
-          >
-            <FaClipboardList /> {!collapsed && "Report Garbage"}
-          </button>
+            <button
+              className={`sidebar-btn ${userPage === "report" ? "active" : ""}`}
+              onClick={() => setUserPage("report")}
+            >
+              <FaClipboardList /> {!collapsed && <span>Report Garbage</span>}
+            </button>
 
-          <button
-            className={`sidebar-btn ${userPage === "complaints" ? "active" : ""}`}
-            onClick={() => setUserPage("complaints")}
-            title="My Complaints"
-          >
-            <FaClipboardList /> {!collapsed && "My Complaints"}
-          </button>
-        </>
-      )}
+            <button
+              className={`sidebar-btn ${userPage === "complaints" ? "active" : ""}`}
+              onClick={() => setUserPage("complaints")}
+            >
+              <FaClipboardList /> {!collapsed && <span>My Complaints</span>}
+            </button>
+          </>
+        )}
 
-      <button className="sidebar-btn" onClick={toggleTheme}>
-        {theme === "light" ? <FaMoon /> : <FaSun />}
-        {!collapsed && (theme === "light" ? "Dark Mode" : "Light Mode")}
-      </button>
+        <button className="sidebar-btn" onClick={toggleTheme}>
+          {theme === "light" ? <FaMoon /> : <FaSun />}
+          {!collapsed && <span>{theme === "light" ? "Dark Mode" : "Light Mode"}</span>}
+        </button>
+      </div>
 
-      <button className="sidebar-btn logout" onClick={logout} title="Logout">
-        <FaSignOutAlt /> {!collapsed && "Logout"}
+      <button className="sidebar-btn logout" onClick={logout}>
+        <FaSignOutAlt /> {!collapsed && <span>Logout</span>}
       </button>
 
     </div>
