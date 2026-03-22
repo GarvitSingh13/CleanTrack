@@ -66,7 +66,7 @@ An AI-powered smart waste management platform that enables users to report garba
 ![Heatmap](preview/heatmap.png)
 
 ### Collector View
-*(Coming Soon - Screenshot needed)*
+![Collector View](preview/collector.png)
 
 ---
 
